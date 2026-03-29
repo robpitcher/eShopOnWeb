@@ -9,7 +9,7 @@ steps:
 
   - task: AdvancedSecurity-Codeql-Init@1
     inputs:
-      languages: "csharp"
+      # languages: "csharp"
       # Supported languages: csharp, cpp, go, java, javascript, python, ruby, swift
       # You can customize the initialize task: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/advanced-security-codeql-init-v1?view=azure-pipelines
       # If you're using a self-hosted agent to run CodeQL, use `enableAutomaticCodeQLInstall` to automatically use the latest CodeQL bits on your agent:
