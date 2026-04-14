@@ -39,7 +39,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  WORKING_BRANCH: "modernize/${{ github.run_id }}"
+  WORKING_BRANCH: "modernize-run/${{ github.run_id }}"
   TARGET_DOTNET: "${{ inputs.dotnet-version-override || '9.0' }}"
   ARTIFACT_ROOT: "docs/modernization"
 
