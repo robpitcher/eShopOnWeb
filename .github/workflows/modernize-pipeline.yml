@@ -1,0 +1,351 @@
+# Agentic Modernization Pipeline — Stages 1–3
+#
+# Sequential pipeline that runs specialist agents to:
+#   Stage 1: Document the repo (inventory)
+#   Stage 2: Generate characterization tests (behavioral lock-in)
+#   Stage 3: Run upgrade assessment (analysis only, no code changes)
+#
+# Each stage writes artifacts to docs/modernization/stage-N/ on a working
+# branch. Handoffs between stages are files committed to that branch.
+# Contract gates at the top of downstream jobs verify upstream output.
+#
+# See: docs/prd.md for the full spec.
+# See: .github/prompts/stage-*.md for agent prompts (work items #2–4).
+
+name: Modernize Pipeline (Stages 1–3)
+
+on:
+  workflow_dispatch:
+    inputs:
+      target-branch:
+        description: "Base branch to modernize from"
+        required: false
+        default: "main"
+        type: string
+      dotnet-version-override:
+        description: "Target .NET version for assessment (default: 9.0)"
+        required: false
+        default: "9.0"
+        type: string
+
+# Permissions needed for branch operations and PR creation
+permissions:
+  contents: write
+  pull-requests: write
+
+# Only one modernization run at a time
+concurrency:
+  group: modernize-pipeline
+  cancel-in-progress: false
+
+env:
+  WORKING_BRANCH: "modernize/${{ github.run_id }}"
+  TARGET_DOTNET: "${{ inputs.dotnet-version-override || '9.0' }}"
+  ARTIFACT_ROOT: "docs/modernization"
+
+jobs:
+  # ============================================================
+  # Stage 1 — Documentation Inventory
+  # ============================================================
+  stage-1-docs:
+    name: "Stage 1: Documentation Inventory"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout base branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.target-branch || 'main' }}
+          fetch-depth: 0
+
+      - name: Create working branch
+        run: |
+          git checkout -b "${{ env.WORKING_BRANCH }}"
+          git push -u origin "${{ env.WORKING_BRANCH }}"
+
+      - name: Ensure artifact directories exist
+        run: |
+          mkdir -p "${{ env.ARTIFACT_ROOT }}/stage-1"
+          mkdir -p "${{ env.ARTIFACT_ROOT }}/stage-2"
+          mkdir -p "${{ env.ARTIFACT_ROOT }}/stage-3"
+
+      # ---------------------------------------------------------
+      # PLACEHOLDER: Agent invocation for Stage 1
+      # ---------------------------------------------------------
+      # Work item #2 (stage-1 prompt) and #8 (stage-1 wiring) will
+      # replace this step with the actual agent call.
+      #
+      # The agent should:
+      #   - Read the repo structure
+      #   - Produce docs/modernization/stage-1/inventory.md with:
+      #     * Projects and target frameworks
+      #     * NuGet dependencies
+      #     * External I/O (DB, HTTP, filesystem)
+      #     * Configuration surface
+      #     * Entry points
+      #     * Upgrade risks
+      #   - Analysis only — no code changes
+      #
+      # Prompt file: .github/prompts/stage-1-documentation.md
+      - name: "[PLACEHOLDER] Invoke Stage 1 agent"
+        run: |
+          echo "::notice::Stage 1 agent invocation placeholder — see work items #2 and #8"
+          echo "TODO: Invoke coding agent with .github/prompts/stage-1-documentation.md"
+
+      # ---------------------------------------------------------
+      # PLACEHOLDER: Commit and push stage 1 artifacts
+      # ---------------------------------------------------------
+      # Work item #8 will finalize this step. The agent may commit
+      # directly, or this step commits on its behalf.
+      - name: "[PLACEHOLDER] Commit stage 1 artifacts"
+        run: |
+          echo "::notice::Artifact commit placeholder — see work item #8"
+          echo "TODO: git add docs/modernization/stage-1/ && git commit && git push"
+
+  # ============================================================
+  # Stage 2 — Characterization Tests
+  # ============================================================
+  stage-2-tests:
+    name: "Stage 2: Characterization Tests"
+    runs-on: ubuntu-latest
+    needs: stage-1-docs
+
+    steps:
+      - name: Checkout working branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.WORKING_BRANCH }}
+          fetch-depth: 0
+
+      # ---------------------------------------------------------
+      # PLACEHOLDER: Contract gate — validate stage 1 output
+      # ---------------------------------------------------------
+      # Work item #5 replaces this with real validation.
+      #
+      # The gate must verify:
+      #   - docs/modernization/stage-1/inventory.md exists
+      #   - Contains required sections: projects, dependencies,
+      #     entry points, upgrade risks
+      #   - Fail loud with a named error identifying what's missing
+      - name: "[PLACEHOLDER] Contract gate — validate stage 1 artifacts"
+        run: |
+          echo "::notice::Contract gate placeholder — see work item #5"
+          echo "TODO: Validate docs/modernization/stage-1/inventory.md exists and has required sections"
+          echo "TODO: Exit 1 with named error if any required input is missing"
+
+      # ---------------------------------------------------------
+      # PLACEHOLDER: Agent invocation for Stage 2
+      # ---------------------------------------------------------
+      # Work item #3 (stage-2 prompt) and #9 (stage-2 wiring) will
+      # replace this step.
+      #
+      # The agent should:
+      #   - Read docs/modernization/stage-1/inventory.md
+      #   - Generate black-box xUnit characterization tests in
+      #     tests/CharacterizationTests/
+      #   - Produce docs/modernization/stage-2/baseline.md describing
+      #     coverage and explicit gaps
+      #   - Tests must pass against the current codebase before exit
+      #
+      # Prompt file: .github/prompts/stage-2-characterization-tests.md
+      - name: "[PLACEHOLDER] Invoke Stage 2 agent"
+        run: |
+          echo "::notice::Stage 2 agent invocation placeholder — see work items #3 and #9"
+          echo "TODO: Invoke coding agent with .github/prompts/stage-2-characterization-tests.md"
+
+      # ---------------------------------------------------------
+      # PLACEHOLDER: Run generated tests to confirm they pass
+      # ---------------------------------------------------------
+      # Work item #9 wires this up. Tests must pass before artifacts
+      # are committed.
+      - name: "[PLACEHOLDER] Run characterization tests"
+        run: |
+          echo "::notice::Test execution placeholder — see work item #9"
+          echo "TODO: dotnet test tests/CharacterizationTests/ --configuration Release"
+
+      # ---------------------------------------------------------
+      # PLACEHOLDER: Commit and push stage 2 artifacts
+      # ---------------------------------------------------------
+      # Work item #9 finalizes this step.
+      - name: "[PLACEHOLDER] Commit stage 2 artifacts"
+        run: |
+          echo "::notice::Artifact commit placeholder — see work item #9"
+          echo "TODO: git add tests/CharacterizationTests/ docs/modernization/stage-2/ && git commit && git push"
+
+  # ============================================================
+  # Stage 3 — Upgrade Assessment
+  # ============================================================
+  stage-3-assessment:
+    name: "Stage 3: Upgrade Assessment"
+    runs-on: ubuntu-latest
+    needs: stage-2-tests
+
+    steps:
+      - name: Checkout working branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.WORKING_BRANCH }}
+          fetch-depth: 0
+
+      # ---------------------------------------------------------
+      # PLACEHOLDER: Contract gate — validate stage 2 output
+      # ---------------------------------------------------------
+      # Work item #6 replaces this with real validation.
+      #
+      # The gate must verify:
+      #   - tests/CharacterizationTests/ project exists
+      #   - docs/modernization/stage-2/baseline.md exists and has
+      #     required sections
+      #   - Fail loud with a named error identifying what's missing
+      - name: "[PLACEHOLDER] Contract gate — validate stage 2 artifacts"
+        run: |
+          echo "::notice::Contract gate placeholder — see work item #6"
+          echo "TODO: Validate tests/CharacterizationTests/ exists"
+          echo "TODO: Validate docs/modernization/stage-2/baseline.md exists and has required sections"
+          echo "TODO: Exit 1 with named error if any required input is missing"
+
+      # ---------------------------------------------------------
+      # PLACEHOLDER: Agent invocation for Stage 3
+      # ---------------------------------------------------------
+      # Work item #4 (stage-3 prompt) and #10 (stage-3 wiring) will
+      # replace this step.
+      #
+      # The agent should:
+      #   - Invoke the modernize-dotnet custom agent's assessment phase
+      #   - Target: .NET ${{ env.TARGET_DOTNET }}
+      #   - Produce docs/modernization/stage-3/assessment.md
+      #   - Assessment only — no planning, no code execution
+      #
+      # Prompt file: .github/prompts/stage-3-upgrade-assessment.md
+      - name: "[PLACEHOLDER] Invoke Stage 3 agent"
+        run: |
+          echo "::notice::Stage 3 agent invocation placeholder — see work items #4 and #10"
+          echo "TODO: Invoke coding agent with .github/prompts/stage-3-upgrade-assessment.md"
+          echo "Target .NET version: ${{ env.TARGET_DOTNET }}"
+
+      # ---------------------------------------------------------
+      # PLACEHOLDER: Commit and push stage 3 artifacts
+      # ---------------------------------------------------------
+      # Work item #10 finalizes this step.
+      - name: "[PLACEHOLDER] Commit stage 3 artifacts"
+        run: |
+          echo "::notice::Artifact commit placeholder — see work item #10"
+          echo "TODO: git add docs/modernization/stage-3/ && git commit && git push"
+
+  # ============================================================
+  # Summary PR — Collect results and open/update a pull request
+  # ============================================================
+  summary-pr:
+    name: "Summary: Create/Update PR"
+    runs-on: ubuntu-latest
+    needs: [stage-1-docs, stage-2-tests, stage-3-assessment]
+    # Run even if upstream jobs fail, so we still get a PR with partial results
+    if: always() && needs.stage-1-docs.result != 'cancelled'
+
+    steps:
+      - name: Checkout working branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.WORKING_BRANCH }}
+          fetch-depth: 0
+
+      - name: Build PR body
+        id: pr-body
+        env:
+          STAGE_1_RESULT: ${{ needs.stage-1-docs.result }}
+          STAGE_2_RESULT: ${{ needs.stage-2-tests.result }}
+          STAGE_3_RESULT: ${{ needs.stage-3-assessment.result }}
+          RUN_URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          REPO: "${{ github.repository }}"
+          BRANCH: "${{ env.WORKING_BRANCH }}"
+        run: |
+          # Map result strings to status emojis
+          status_icon() {
+            case "$1" in
+              success)   echo "✅" ;;
+              failure)   echo "❌" ;;
+              skipped)   echo "⏭️" ;;
+              cancelled) echo "🚫" ;;
+              *)         echo "⚠️" ;;
+            esac
+          }
+
+          S1=$(status_icon "$STAGE_1_RESULT")
+          S2=$(status_icon "$STAGE_2_RESULT")
+          S3=$(status_icon "$STAGE_3_RESULT")
+
+          # Count successes
+          PASS=0
+          for r in "$STAGE_1_RESULT" "$STAGE_2_RESULT" "$STAGE_3_RESULT"; do
+            [ "$r" = "success" ] && PASS=$((PASS + 1))
+          done
+
+          # Build the markdown body
+          cat > pr_body.md <<PREOF
+          ## 🤖 Automated Modernization Pipeline Run
+
+          This pull request was created automatically by the **Modernize Pipeline (Stages 1–3)** workflow.
+          It contains artifacts produced by each pipeline stage on the \`${BRANCH}\` working branch.
+
+          ### Stage Results
+
+          | Stage | Job | Result |
+          |-------|-----|--------|
+          | 1 | Documentation Inventory | ${S1} \`${STAGE_1_RESULT}\` |
+          | 2 | Characterization Tests  | ${S2} \`${STAGE_2_RESULT}\` |
+          | 3 | Upgrade Assessment      | ${S3} \`${STAGE_3_RESULT}\` |
+
+          **${PASS} of 3** stages completed successfully.
+
+          ### Artifact Files
+
+          The following artifact files were produced (links resolve once merged or on the working branch):
+
+          - 📄 [Stage 1 — Inventory](https://github.com/${REPO}/blob/${BRANCH}/docs/modernization/stage-1/inventory.md)
+          - 📄 [Stage 2 — Baseline](https://github.com/${REPO}/blob/${BRANCH}/docs/modernization/stage-2/baseline.md)
+          - 📄 [Stage 3 — Assessment](https://github.com/${REPO}/blob/${BRANCH}/docs/modernization/stage-3/assessment.md)
+
+          ### Workflow Run
+
+          🔗 [View workflow run](${RUN_URL})
+
+          ---
+          > **Note:** Stages that did not succeed may not have produced their artifact files.
+          > Review the workflow run logs for details on any failures.
+          PREOF
+
+          # Dedent — the heredoc above is indented for YAML readability
+          sed -i 's/^          //' pr_body.md
+
+      - name: Create or update PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TARGET_BRANCH: ${{ inputs.target-branch || 'main' }}
+        run: |
+          PR_TITLE="Modernization Pipeline Run #${{ github.run_id }}"
+
+          # Check if a PR already exists for this working branch
+          EXISTING_PR=$(gh pr list \
+            --head "${{ env.WORKING_BRANCH }}" \
+            --base "$TARGET_BRANCH" \
+            --state open \
+            --json number \
+            --jq '.[0].number // empty' 2>/dev/null || true)
+
+          if [ -n "$EXISTING_PR" ]; then
+            echo "::notice::Updating existing PR #${EXISTING_PR}"
+            gh pr edit "$EXISTING_PR" \
+              --title "$PR_TITLE" \
+              --body-file pr_body.md
+          else
+            echo "::notice::Creating new PR"
+            gh pr create \
+              --title "$PR_TITLE" \
+              --body-file pr_body.md \
+              --base "$TARGET_BRANCH" \
+              --head "${{ env.WORKING_BRANCH }}"
+          fi
+
+      - name: Clean up temp files
+        if: always()
+        run: rm -f pr_body.md
