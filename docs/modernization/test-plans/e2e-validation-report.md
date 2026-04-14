@@ -34,7 +34,7 @@
 | # | Check | Result | Notes |
 |---|-------|--------|-------|
 | 1.1 | Jobs are correctly chained via `needs:` | ✅ Pass | `stage-2-tests` needs `stage-1-docs`; `stage-3-assessment` needs `stage-2-tests`; `summary-pr` needs all three. |
-| 1.2 | Stage 1 creates working branch | ✅ Pass | `git checkout -b` + `git push -u origin` on `modernize/<run_id>`. |
+| 1.2 | Stage 1 creates working branch | ✅ Pass | `git checkout -b` + `git push -u origin` on `modernize-run/<run_id>`. |
 | 1.3 | Stages 2–3 checkout working branch | ✅ Pass | Both use `ref: ${{ env.WORKING_BRANCH }}` in `actions/checkout@v4`. |
 | 1.4 | Summary PR uses `if: always()` | ✅ Pass | `if: always() && needs.stage-1-docs.result != 'cancelled'` — runs on partial failure, skips if run was cancelled. |
 | 1.5 | Concurrency group prevents parallel runs | ✅ Pass | `concurrency: { group: modernize-pipeline, cancel-in-progress: false }`. |
@@ -225,7 +225,7 @@ All three stages use identical guard logic: `git add <paths>` → check `git dif
    If your org requires a PAT with Copilot scope, create a repository secret named `COPILOT_TOKEN` with the appropriate token. If not, the default `GITHUB_TOKEN` is used.
 
 3. **Branch protection:**
-   Ensure the `main` branch allows `github-actions[bot]` to create branches (or that branch protection rules do not block `modernize/*` branch creation).
+   Ensure the `main` branch allows `github-actions[bot]` to create branches (or that branch protection rules do not block `modernize-run/*` branch creation).
 
 ### Triggering the Run
 
@@ -243,7 +243,7 @@ All three stages use identical guard logic: `git add <paths>` → check `git dif
 | Stage 1 | `Ensure artifact directories exist` creates all three dirs. Agent produces `inventory.md` with all 6 required sections. Commit step succeeds (not empty). |
 | Stage 2 | Contract gate logs `✅ Contract gate passed — Stage 1 inventory is complete (6/6 sections present)`. Agent produces test project and `baseline.md`. `dotnet test` passes with zero failures. Commit step succeeds. |
 | Stage 3 | Contract gate logs `✅ Contract gate passed — all stage 2 artifacts validated`. Agent produces `assessment.md` with all 7 required sections. Commit step succeeds. |
-| Summary PR | PR is created against `main` from `modernize/<run_id>`. PR body shows three ✅ icons. All three artifact links are clickable and resolve to files on the working branch. |
+| Summary PR | PR is created against `main` from `modernize-run/<run_id>`. PR body shows three ✅ icons. All three artifact links are clickable and resolve to files on the working branch. |
 
 ### If a Stage Fails
 

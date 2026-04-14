@@ -10,7 +10,7 @@ This directory contains artifacts from the **Agentic Modernization Pipeline**, a
 | 2 | `stage-2-tests` | Copilot CLI + prompt | `stage-2/baseline.md` + test project | ~15–20 min |
 | 3 | `stage-3-assessment` | Copilot CLI + `modernize-dotnet` agent | `stage-3/assessment.md` | ~10–15 min |
 
-All jobs run sequentially on Ubuntu runners. Results are committed to a working branch (`modernize/<run-id>`) and collected in a pull request.
+All jobs run sequentially on Ubuntu runners. Results are committed to a working branch (`modernize-run/<run-id>`) and collected in a pull request.
 
 ---
 
@@ -39,7 +39,7 @@ summary-pr (runs regardless of success/failure)
 
 ### Working Branch Naming
 
-Each run creates its own working branch: `modernize/<github.run_id>`
+Each run creates its own working branch: `modernize-run/<github.run_id>`
 
 **Why separate branches?**
 - Each run is completely isolated—no conflicts between concurrent design scenarios
@@ -298,12 +298,12 @@ Each stage has a "Commit and push stage N artifacts" step. It verifies:
 
 ### 4. Review the Artifact Files
 
-Once the workflow completes (or fails), check the working branch `modernize/<run-id>`:
+Once the workflow completes (or fails), check the working branch `modernize-run/<run-id>`:
 
 ```bash
 # Clone/fetch the working branch
-git fetch origin modernize/<run-id>
-git checkout modernize/<run-id>
+git fetch origin modernize-run/<run-id>
+git checkout modernize-run/<run-id>
 
 # Read the artifacts
 cat docs/modernization/stage-1/inventory.md

@@ -25,7 +25,7 @@ See `.squad/decisions.md` for full backlog and dependency graph.
 ### Work Item #1 — Workflow Skeleton (completed)
 - **File:** `.github/workflows/modernize-pipeline.yml`
 - **No naming conflict** — existing workflows: `dotnetcore.yml`, `richnav.yml`, `squad-*.yml`, `sync-squad-labels.yml`
-- **Working branch convention:** `modernize/<run-id>` (using `github.run_id`)
+- **Working branch convention:** `modernize-run/<run-id>` (using `github.run_id`)
 - **Artifact paths:** `docs/modernization/stage-{1,2,3}/`
 - **Inputs:** `target-branch` (default: main), `dotnet-version-override` (default: 9.0)
 - **Job chain:** `stage-1-docs` → `stage-2-tests` → `stage-3-assessment` → `summary-pr`
@@ -119,7 +119,7 @@ See `.squad/decisions.md` for full backlog and dependency graph.
 - **Test execution is a hard gate:** `dotnet test tests/CharacterizationTests/ --configuration Release --verbosity normal` — no `--no-restore` (safer, since agent may not have restored)
 - **Commit pattern mirrors stage 1:** `github-actions[bot]` identity, fail-loud on empty `git diff --cached`, descriptive commit message with run ID
 - **Artifacts committed:** `tests/CharacterizationTests/` + `docs/modernization/stage-2/` — both test code and baseline document
-- **Working branch:** stage 2 checks out existing `modernize/<run_id>` branch (created by stage 1), does not create a new one
+- **Working branch:** stage 2 checks out existing `modernize-run/<run_id>` branch (created by stage 1), does not create a new one
 - **Contract gate (#5) confirmed** in position — first step after checkout, before any agent work
 
 ### Work Item #10 — Stage 3 Integration Wiring (completed)
@@ -131,7 +131,7 @@ See `.squad/decisions.md` for full backlog and dependency graph.
 - **Auth:** identical to stages 1 and 2 — `COPILOT_GITHUB_TOKEN` from `secrets.COPILOT_TOKEN || secrets.GITHUB_TOKEN`
 - **Commit pattern mirrors stages 1 and 2:** `github-actions[bot]` identity, fail-loud on empty `git diff --cached`, commit message `Stage 3: Upgrade assessment [run #<run_id>]`
 - **Artifacts committed:** `docs/modernization/stage-3/` only (assessment is analysis-only, no code outputs)
-- **Working branch:** stage 3 checks out existing `modernize/<run_id>` branch (created by stage 1)
+- **Working branch:** stage 3 checks out existing `modernize-run/<run_id>` branch (created by stage 1)
 - **Contract gate (#6) confirmed** in position — first step after checkout, before any agent work
 - **No .NET SDK needed** — stage 3 is assessment-only (no builds, no tests), unlike stage 2
 - **Zero placeholders remain** in the entire workflow file — pipeline skeleton fully wired end-to-end

@@ -13,7 +13,7 @@ Created `.github/workflows/modernize-pipeline.yml` as the structural shell for t
 
 **Conventions established:**
 
-1. **Working branch:** `modernize/<github.run_id>` — unique per run, easily traceable.
+1. **Working branch:** `modernize-run/<github.run_id>` — unique per run, easily traceable.
 2. **Artifact paths:** `docs/modernization/stage-{1,2,3}/` — consistent with Keaton's decomposition.
 3. **Workflow inputs:** `target-branch` (default: main), `dotnet-version-override` (default: 9.0).
 4. **Concurrency:** single pipeline run at a time (`concurrency: modernize-pipeline, cancel-in-progress: false`).

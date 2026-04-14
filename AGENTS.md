@@ -68,7 +68,7 @@ The pipeline is triggered manually via **workflow_dispatch**:
    - **dotnet-version-override:** Target .NET version (default: `9.0`)
 4. Click **Run workflow**
 
-The workflow creates a working branch `modernize/<run-id>` and commits artifacts to it. Once all stages complete (or fail), the **Summary: Create/Update PR** job opens a pull request with results.
+The workflow creates a working branch `modernize-run/<run-id>` and commits artifacts to it. Once all stages complete (or fail), the **Summary: Create/Update PR** job opens a pull request with results.
 
 **Viewing Results:**
 - Check the workflow run in the **Actions** tab
