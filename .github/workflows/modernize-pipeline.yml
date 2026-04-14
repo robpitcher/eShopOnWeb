@@ -290,33 +290,41 @@ jobs:
           echo ""
           echo "✅ Contract gate passed — all stage 2 artifacts validated. Stage 3 may proceed."
 
-      # ---------------------------------------------------------
-      # PLACEHOLDER: Agent invocation for Stage 3
-      # ---------------------------------------------------------
-      # Work item #4 (stage-3 prompt) and #10 (stage-3 wiring) will
-      # replace this step.
-      #
-      # The agent should:
-      #   - Invoke the modernize-dotnet custom agent's assessment phase
-      #   - Target: .NET ${{ env.TARGET_DOTNET }}
-      #   - Produce docs/modernization/stage-3/assessment.md
-      #   - Assessment only — no planning, no code execution
-      #
-      # Prompt file: .github/prompts/stage-3-upgrade-assessment.md
-      - name: "[PLACEHOLDER] Invoke Stage 3 agent"
-        run: |
-          echo "::notice::Stage 3 agent invocation placeholder — see work items #4 and #10"
-          echo "TODO: Invoke coding agent with .github/prompts/stage-3-upgrade-assessment.md"
-          echo "Target .NET version: ${{ env.TARGET_DOTNET }}"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
 
-      # ---------------------------------------------------------
-      # PLACEHOLDER: Commit and push stage 3 artifacts
-      # ---------------------------------------------------------
-      # Work item #10 finalizes this step.
-      - name: "[PLACEHOLDER] Commit stage 3 artifacts"
+      - name: Install Copilot CLI
+        run: npm install -g @github/copilot
+
+      # Runs the Copilot CLI in autopilot mode with the stage 3 prompt.
+      # The agent invokes the modernize-dotnet custom agent to assess
+      # upgrade feasibility, producing docs/modernization/stage-3/assessment.md.
+      # Assessment only — no code changes, no builds, no test execution.
+      #
+      # Auth: same pattern as stages 1 and 2 — prefer COPILOT_TOKEN if set.
+      - name: Invoke Stage 3 upgrade-assessment agent
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
-          echo "::notice::Artifact commit placeholder — see work item #10"
-          echo "TODO: git add docs/modernization/stage-3/ && git commit && git push"
+          PROMPT=$(cat .github/prompts/stage-3-upgrade-assessment.md)
+          copilot --autopilot --yolo --max-autopilot-continues 30 \
+            --agent modernize-dotnet \
+            -p "$PROMPT"
+
+      - name: Commit and push stage 3 artifacts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/modernization/stage-3/
+          if git diff --cached --quiet; then
+            echo "::error::Stage 3 agent did not produce any artifacts in docs/modernization/stage-3/"
+            exit 1
+          fi
+          git commit -m "Stage 3: Upgrade assessment [run #${{ github.run_id }}]"
+          git push
 
   # ============================================================
   # Summary PR — Collect results and open/update a pull request

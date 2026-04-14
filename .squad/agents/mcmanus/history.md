@@ -122,3 +122,18 @@ See `.squad/decisions.md` for full backlog and dependency graph.
 - **Working branch:** stage 2 checks out existing `modernize/<run_id>` branch (created by stage 1), does not create a new one
 - **Contract gate (#5) confirmed** in position — first step after checkout, before any agent work
 
+### Work Item #10 — Stage 3 Integration Wiring (completed)
+- **File:** `.github/workflows/modernize-pipeline.yml` — `stage-3-assessment` job
+- **Replaced both placeholders** — agent invocation and artifact commit steps now fully wired
+- **Step order (7 total):** Checkout → Contract gate → Setup Node → Install Copilot CLI → Invoke agent → Commit & push
+- **Agent invocation:** same pattern as stages 1 and 2 — `copilot --autopilot --yolo --max-autopilot-continues 30 --agent modernize-dotnet -p "$PROMPT"`, reads `.github/prompts/stage-3-upgrade-assessment.md`
+- **Custom agent flag:** `--agent modernize-dotnet` passes the custom agent reference through to the CLI (stage 3 prompt delegates to this agent)
+- **Auth:** identical to stages 1 and 2 — `COPILOT_GITHUB_TOKEN` from `secrets.COPILOT_TOKEN || secrets.GITHUB_TOKEN`
+- **Commit pattern mirrors stages 1 and 2:** `github-actions[bot]` identity, fail-loud on empty `git diff --cached`, commit message `Stage 3: Upgrade assessment [run #<run_id>]`
+- **Artifacts committed:** `docs/modernization/stage-3/` only (assessment is analysis-only, no code outputs)
+- **Working branch:** stage 3 checks out existing `modernize/<run_id>` branch (created by stage 1)
+- **Contract gate (#6) confirmed** in position — first step after checkout, before any agent work
+- **No .NET SDK needed** — stage 3 is assessment-only (no builds, no tests), unlike stage 2
+- **Zero placeholders remain** in the entire workflow file — pipeline skeleton fully wired end-to-end
+- **This was McManus's last pipeline wiring item** — all 10 work items (#1–10) complete
+
