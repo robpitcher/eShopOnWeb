@@ -109,3 +109,16 @@ See `.squad/decisions.md` for full backlog and dependency graph.
 - **Uses `::error::` annotations** so failures appear as red error annotations in the GitHub Actions UI
 - **Pattern is reusable** for work item #6 (Stage 3 validates Stage 2) — same structure, different file and headings
 
+### Work Item #9 — Stage 2 Integration Wiring (completed)
+- **File:** `.github/workflows/modernize-pipeline.yml` — `stage-2-tests` job
+- **Replaced all 3 placeholders** — agent invocation, test run, and artifact commit steps now fully wired
+- **Step order (8 total):** Checkout → Contract gate → Setup Node → Install Copilot CLI → Invoke agent → Setup .NET SDK → Run tests → Commit & push
+- **Agent invocation:** same pattern as stage 1 — `copilot --autopilot --yolo --max-autopilot-continues 30 -p "$PROMPT"`, reads `.github/prompts/stage-2-characterization-tests.md`
+- **Auth:** identical to stage 1 — `COPILOT_GITHUB_TOKEN` from `secrets.COPILOT_TOKEN || secrets.GITHUB_TOKEN`
+- **.NET SDK setup:** `actions/setup-dotnet@v4` with `7.0.x` (matches `global.json`) — placed after agent invocation, before test run
+- **Test execution is a hard gate:** `dotnet test tests/CharacterizationTests/ --configuration Release --verbosity normal` — no `--no-restore` (safer, since agent may not have restored)
+- **Commit pattern mirrors stage 1:** `github-actions[bot]` identity, fail-loud on empty `git diff --cached`, descriptive commit message with run ID
+- **Artifacts committed:** `tests/CharacterizationTests/` + `docs/modernization/stage-2/` — both test code and baseline document
+- **Working branch:** stage 2 checks out existing `modernize/<run_id>` branch (created by stage 1), does not create a new one
+- **Contract gate (#5) confirmed** in position — first step after checkout, before any agent work
+

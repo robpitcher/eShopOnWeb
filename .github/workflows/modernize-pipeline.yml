@@ -167,44 +167,52 @@ jobs:
           echo ""
           echo "✅ Contract gate passed — Stage 1 inventory is complete (6/6 sections present)"
 
-      # ---------------------------------------------------------
-      # PLACEHOLDER: Agent invocation for Stage 2
-      # ---------------------------------------------------------
-      # Work item #3 (stage-2 prompt) and #9 (stage-2 wiring) will
-      # replace this step.
-      #
-      # The agent should:
-      #   - Read docs/modernization/stage-1/inventory.md
-      #   - Generate black-box xUnit characterization tests in
-      #     tests/CharacterizationTests/
-      #   - Produce docs/modernization/stage-2/baseline.md describing
-      #     coverage and explicit gaps
-      #   - Tests must pass against the current codebase before exit
-      #
-      # Prompt file: .github/prompts/stage-2-characterization-tests.md
-      - name: "[PLACEHOLDER] Invoke Stage 2 agent"
-        run: |
-          echo "::notice::Stage 2 agent invocation placeholder — see work items #3 and #9"
-          echo "TODO: Invoke coding agent with .github/prompts/stage-2-characterization-tests.md"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
 
-      # ---------------------------------------------------------
-      # PLACEHOLDER: Run generated tests to confirm they pass
-      # ---------------------------------------------------------
-      # Work item #9 wires this up. Tests must pass before artifacts
-      # are committed.
-      - name: "[PLACEHOLDER] Run characterization tests"
-        run: |
-          echo "::notice::Test execution placeholder — see work item #9"
-          echo "TODO: dotnet test tests/CharacterizationTests/ --configuration Release"
+      - name: Install Copilot CLI
+        run: npm install -g @github/copilot
 
-      # ---------------------------------------------------------
-      # PLACEHOLDER: Commit and push stage 2 artifacts
-      # ---------------------------------------------------------
-      # Work item #9 finalizes this step.
-      - name: "[PLACEHOLDER] Commit stage 2 artifacts"
+      # Runs the Copilot CLI in autopilot mode with the stage 2 prompt.
+      # The agent reads the stage 1 inventory and generates characterization
+      # tests in tests/CharacterizationTests/ plus a baseline document in
+      # docs/modernization/stage-2/baseline.md.
+      #
+      # Auth: same pattern as stage 1 — prefer COPILOT_TOKEN if set.
+      - name: Invoke Stage 2 characterization-test agent
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
-          echo "::notice::Artifact commit placeholder — see work item #9"
-          echo "TODO: git add tests/CharacterizationTests/ docs/modernization/stage-2/ && git commit && git push"
+          PROMPT=$(cat .github/prompts/stage-2-characterization-tests.md)
+          copilot --autopilot --yolo --max-autopilot-continues 30 \
+            -p "$PROMPT"
+
+      # .NET SDK is needed to build and run the generated tests.
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "7.0.x"
+
+      # Critical gate: characterization tests must pass against the current
+      # codebase before we commit anything. If tests fail here, the stage
+      # fails — this is the behavioral lock-in.
+      - name: Run characterization tests
+        run: dotnet test tests/CharacterizationTests/ --configuration Release --verbosity normal
+
+      - name: Commit and push stage 2 artifacts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tests/CharacterizationTests/ docs/modernization/stage-2/
+          if git diff --cached --quiet; then
+            echo "::error::Stage 2 agent did not produce any artifacts in tests/CharacterizationTests/ or docs/modernization/stage-2/"
+            exit 1
+          fi
+          git commit -m "Stage 2: Characterization tests [run #${{ github.run_id }}]"
+          git push
 
   # ============================================================
   # Stage 3 — Upgrade Assessment
