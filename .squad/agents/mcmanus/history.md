@@ -69,6 +69,15 @@ See `.squad/decisions.md` for full backlog and dependency graph.
 - **Constraints block** explicitly bans `dotnet build`, `dotnet test`, source modifications, and migration plan generation
 - **Target:** .NET 9 (per team decision #5 in decisions.md)
 
+### Work Item #6 — Contract Gate: Stage 3 Validates Stage 2 (completed)
+- **File:** `.github/workflows/modernize-pipeline.yml` — `stage-3-assessment` job
+- **Replaced placeholder** with a real shell-based contract gate (first step after checkout)
+- **Three checks:** (1) `tests/CharacterizationTests/` directory exists, (2) contains at least one `.cs` file, (3) `docs/modernization/stage-2/baseline.md` exists with all four required sections
+- **Required sections** sourced from `.github/prompts/stage-2-characterization-tests.md`: `## Summary`, `## Covered Behavior`, `## Explicitly NOT Covered`, `## Test Execution`
+- **Fail-loud pattern:** each check emits `::error::CONTRACT GATE FAILED:` with the specific missing item; gate collects all failures before exiting 1 (reports everything, not just the first miss)
+- **Success path:** prints per-check confirmations then a final `✅ Contract gate passed` line
+- **Same pattern as #5:** downstream-validates-upstream, shell `run:` step (not a separate action), per team decision #4
+
 ### Work Item #7 — PR Summary Job (completed)
 - **File:** `.github/workflows/modernize-pipeline.yml` — `summary-pr` job
 - **Fixed `needs:` declaration** — changed from `needs: stage-3-assessment` to `needs: [stage-1-docs, stage-2-tests, stage-3-assessment]` so all three results are available in the `needs` context
@@ -77,4 +86,14 @@ See `.squad/decisions.md` for full backlog and dependency graph.
 - **Create-or-update pattern:** `gh pr list --head <branch> --json number --jq` to detect existing PR, then `gh pr create` or `gh pr edit` accordingly
 - **Auth:** `GH_TOKEN` env var from `secrets.GITHUB_TOKEN` (gh CLI reads it automatically)
 - **Cleanup step** uses `if: always()` to remove `pr_body.md` temp file even on failure
+
+### Work Item #5 — Contract Gate: Stage 2 Validates Stage 1 (completed)
+- **File:** `.github/workflows/modernize-pipeline.yml` — `stage-2-tests` job, first step after checkout
+- **Replaced placeholder** with real shell `run:` step — no separate action, per team decision #4
+- **File existence check:** verifies `docs/modernization/stage-1/inventory.md` exists; exits immediately with named error if missing
+- **Section validation:** checks all 6 required headings from `.github/prompts/stage-1-documentation.md` using `grep -qF` (fixed-string match, no regex surprises)
+- **Six required sections:** `## Projects and Target Frameworks`, `## Dependencies`, `## External I/O`, `## Configuration Surface`, `## Entry Points`, `## Upgrade Risks`
+- **Reports every missing section** before exiting — accumulates failures so the error log names ALL missing sections, not just the first one
+- **Uses `::error::` annotations** so failures appear as red error annotations in the GitHub Actions UI
+- **Pattern is reusable** for work item #6 (Stage 3 validates Stage 2) — same structure, different file and headings
 

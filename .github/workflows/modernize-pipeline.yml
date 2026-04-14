@@ -118,20 +118,51 @@ jobs:
           fetch-depth: 0
 
       # ---------------------------------------------------------
-      # PLACEHOLDER: Contract gate — validate stage 1 output
+      # Contract gate — validate stage 1 output (work item #5)
       # ---------------------------------------------------------
-      # Work item #5 replaces this with real validation.
-      #
-      # The gate must verify:
-      #   - docs/modernization/stage-1/inventory.md exists
-      #   - Contains required sections: projects, dependencies,
-      #     entry points, upgrade risks
-      #   - Fail loud with a named error identifying what's missing
-      - name: "[PLACEHOLDER] Contract gate — validate stage 1 artifacts"
+      # Downstream-validates-upstream: if Stage 1 didn't produce
+      # a complete inventory, we fail here with an exact reason.
+      # Section headings must match .github/prompts/stage-1-documentation.md.
+      - name: "Contract gate — validate stage 1 inventory"
         run: |
-          echo "::notice::Contract gate placeholder — see work item #5"
-          echo "TODO: Validate docs/modernization/stage-1/inventory.md exists and has required sections"
-          echo "TODO: Exit 1 with named error if any required input is missing"
+          INVENTORY="docs/modernization/stage-1/inventory.md"
+          FAILED=0
+
+          # --- File existence check ---
+          if [ ! -f "$INVENTORY" ]; then
+            echo "::error::CONTRACT GATE FAILED: Stage 1 inventory file missing — expected '$INVENTORY'"
+            exit 1
+          fi
+
+          echo "✓ Inventory file exists: $INVENTORY"
+
+          # --- Required section checks ---
+          # These headings are declared in .github/prompts/stage-1-documentation.md
+          SECTIONS=(
+            "## Projects and Target Frameworks"
+            "## Dependencies"
+            "## External I/O"
+            "## Configuration Surface"
+            "## Entry Points"
+            "## Upgrade Risks"
+          )
+
+          for section in "${SECTIONS[@]}"; do
+            if ! grep -qF "$section" "$INVENTORY"; then
+              echo "::error::CONTRACT GATE FAILED: Stage 1 inventory missing required section '$section'"
+              FAILED=1
+            else
+              echo "✓ Found required section: $section"
+            fi
+          done
+
+          if [ "$FAILED" -eq 1 ]; then
+            echo "::error::CONTRACT GATE FAILED: One or more required sections are missing from $INVENTORY"
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ Contract gate passed — Stage 1 inventory is complete (6/6 sections present)"
 
       # ---------------------------------------------------------
       # PLACEHOLDER: Agent invocation for Stage 2
@@ -188,21 +219,65 @@ jobs:
           fetch-depth: 0
 
       # ---------------------------------------------------------
-      # PLACEHOLDER: Contract gate — validate stage 2 output
+      # Contract gate — validate stage 2 output (work item #6)
       # ---------------------------------------------------------
-      # Work item #6 replaces this with real validation.
-      #
-      # The gate must verify:
-      #   - tests/CharacterizationTests/ project exists
-      #   - docs/modernization/stage-2/baseline.md exists and has
-      #     required sections
-      #   - Fail loud with a named error identifying what's missing
-      - name: "[PLACEHOLDER] Contract gate — validate stage 2 artifacts"
+      # Stage 3 cannot proceed unless stage 2 produced:
+      #   1. A characterization test project with at least one .cs file
+      #   2. A baseline document with all required sections
+      # Fails loud with a named error identifying the specific gap.
+      - name: "Contract gate — validate stage 2 artifacts"
         run: |
-          echo "::notice::Contract gate placeholder — see work item #6"
-          echo "TODO: Validate tests/CharacterizationTests/ exists"
-          echo "TODO: Validate docs/modernization/stage-2/baseline.md exists and has required sections"
-          echo "TODO: Exit 1 with named error if any required input is missing"
+          GATE_PASS=true
+
+          # --- Check 1: CharacterizationTests directory with .cs files ---
+          if [ ! -d "tests/CharacterizationTests" ]; then
+            echo "::error::CONTRACT GATE FAILED: Stage 2 test project directory missing — 'tests/CharacterizationTests/' not found"
+            GATE_PASS=false
+          else
+            CS_COUNT=$(find tests/CharacterizationTests -name '*.cs' | wc -l)
+            if [ "$CS_COUNT" -eq 0 ]; then
+              echo "::error::CONTRACT GATE FAILED: Stage 2 test project contains no .cs files — 'tests/CharacterizationTests/' has zero C# source files"
+              GATE_PASS=false
+            else
+              echo "✓ tests/CharacterizationTests/ exists with ${CS_COUNT} .cs file(s)"
+            fi
+          fi
+
+          # --- Check 2: baseline.md exists ---
+          BASELINE="docs/modernization/stage-2/baseline.md"
+          if [ ! -f "$BASELINE" ]; then
+            echo "::error::CONTRACT GATE FAILED: Stage 2 baseline document missing — '${BASELINE}' not found"
+            GATE_PASS=false
+          else
+            echo "✓ ${BASELINE} exists"
+
+            # --- Check 3: Required sections in baseline.md ---
+            # Section headings defined in .github/prompts/stage-2-characterization-tests.md
+            REQUIRED_SECTIONS=(
+              "## Summary"
+              "## Covered Behavior"
+              "## Explicitly NOT Covered"
+              "## Test Execution"
+            )
+            for section in "${REQUIRED_SECTIONS[@]}"; do
+              if ! grep -q "^${section}" "$BASELINE"; then
+                echo "::error::CONTRACT GATE FAILED: Stage 2 baseline missing required section '${section}'"
+                GATE_PASS=false
+              else
+                echo "✓ Found required section: ${section}"
+              fi
+            done
+          fi
+
+          # --- Final verdict ---
+          if [ "$GATE_PASS" = false ]; then
+            echo ""
+            echo "Stage 3 cannot proceed — stage 2 contract not satisfied."
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ Contract gate passed — all stage 2 artifacts validated. Stage 3 may proceed."
 
       # ---------------------------------------------------------
       # PLACEHOLDER: Agent invocation for Stage 3
