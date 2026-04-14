@@ -36,3 +36,12 @@
 - **Rob's preference:** eShopOnWeb is the sample app for testing upgrades. Keep it boring and auditable.
 - **Decomposition:** 15 work items filed to `.squad/decisions/inbox/keaton-prd-decomposition.md`. McManus owns the critical path (items 1–10), Hockney owns validation (11–12), Keaton owns docs/review (13–15). Fenster has no work this iteration.
 - **Critical path:** Workflow skeleton → S1 prompt → S1 wiring → S2 gate → S2 wiring → S3 wiring → E2E validation.
+
+### 2025-07-18 — Prompt Refinement Pass (Work Item #14)
+
+- **Reviewed:** All three stage prompts against Hockney's E2E findings (53 checks, 0 blockers, 4 warnings).
+- **Key pattern:** LLM agents commonly attempt build commands during analysis-only stages, modify .sln files unprompted, and create extra files outside declared output paths. Added explicit DO NOT constraints for each.
+- **Stage 1 fixes:** Added "read files only" rule banning build/compile commands; clarified overwrite-on-rerun behavior; tightened scope boundary.
+- **Stage 2 fixes:** Corrected incorrect `Directory.Packages.props` parenthetical for target framework; added .sln modification ban; added output path boundary constraint; made exit criteria enumerate exact baseline section names.
+- **Stage 3 fixes:** Removed dead `dotnet-version-override` reference (Hockney Warning #1); added fallback if `modernize-dotnet` agent unavailable; expanded constraint specificity with explicit command bans.
+- **Lesson:** Prompt quality gates should check for both "does it say the right things" AND "does it explicitly ban the wrong things." Agents treat silence as permission.

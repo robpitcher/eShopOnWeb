@@ -28,7 +28,7 @@ REQUIRED_INPUTS=(
 ## Target
 
 - **Target framework:** .NET 9 (`net9.0`)
-- Read the `dotnet-version-override` workflow input if available; default to `9.0`.
+- This is the fixed target for this pipeline iteration. Do not assess for any other version.
 
 ---
 
@@ -52,6 +52,7 @@ REQUIRED_INPUTS=(
 ### Step 2 — Invoke the `modernize-dotnet` custom agent (ASSESSMENT PHASE ONLY)
 
 Invoke the `modernize-dotnet` custom agent to perform **assessment only** for upgrading to .NET 9.
+If the `modernize-dotnet` agent is unavailable or fails to respond, perform the assessment directly yourself using the same criteria listed below.
 
 Pass it the following context:
 - The full stage 1 inventory
@@ -108,6 +109,7 @@ The output file must exist and contain all required sections before this stage i
 ## Constraints
 
 - **Assessment only.** Do not create migration plans, do not generate upgrade scripts, do not modify any project files or source code.
-- **No test execution.** Do not run `dotnet build`, `dotnet test`, or any compilation commands.
-- **Deterministic scope.** The only file you create is `docs/modernization/stage-3/assessment.md`.
+- **No execution.** Do NOT run `dotnet build`, `dotnet test`, `dotnet restore`, `dotnet run`, or any compilation/execution commands. All analysis is based on reading files.
+- **No package installation.** Do NOT install any npm or NuGet packages.
+- **Single output file.** The only file you create is `docs/modernization/stage-3/assessment.md`. Do NOT write to any other path. Do NOT modify any existing file in the repository.
 - **Fail loud.** If you cannot produce a complete assessment (e.g., missing inputs, agent failure), exit with a non-zero status and a clear error message.

@@ -41,7 +41,7 @@ tests/CharacterizationTests/CharacterizationTests.csproj
 
 **Project conventions** (match existing test projects in this repo):
 
-- Target framework: `net7.0` (inherited from `Directory.Packages.props`)
+- Target framework: `net7.0` (set this explicitly in the `.csproj` — match the existing test projects)
 - Use centrally-managed package versions (no explicit `Version` attributes)
 - Required packages: `xunit`, `xunit.runner.visualstudio`, `Microsoft.NET.Test.Sdk`,
   `Microsoft.AspNetCore.Mvc.Testing`, `Microsoft.EntityFrameworkCore.InMemory`
@@ -139,17 +139,19 @@ The document must contain these sections:
 ## Constraints
 
 1. **No refactoring.** Do not modify any file under `src/`. Do not modify existing test projects.
-2. **No new dependencies** beyond what's already in `Directory.Packages.props`.
+2. **No solution file changes.** Do NOT modify any `.sln` file. The test project runs standalone via `dotnet test tests/CharacterizationTests/`.
+3. **No new dependencies** beyond what's already in `Directory.Packages.props`.
    If you need a package not already listed, document it in the baseline and skip those tests.
-3. **Tests must pass.** Run `dotnet test tests/CharacterizationTests/ --configuration Release`
+4. **Tests must pass.** Run `dotnet test tests/CharacterizationTests/ --configuration Release`
    before finishing. If any test fails, fix the test (not the app). If behavior is
    genuinely untestable with the available tools, skip it and document why in the baseline.
-4. **Black-box only.** Test through HTTP endpoints and public API surface.
+5. **Black-box only.** Test through HTTP endpoints and public API surface.
    Do not test private methods or internal implementation details.
-5. **In-memory database.** Override EF Core to use `UseInMemoryDatabase` so tests
+6. **In-memory database.** Override EF Core to use `UseInMemoryDatabase` so tests
    run without SQL Server. Follow existing test fixture patterns exactly.
-6. **Narrow scope.** Characterization tests only. No upgrade work, no refactoring
+7. **Narrow scope.** Characterization tests only. No upgrade work, no refactoring
    recommendations, no code quality improvements.
+8. **Stay in your output paths.** Do NOT create files outside the paths declared in the Output Paths table below. Do NOT create scripts, README files, or helper files outside the test project directory.
 
 ---
 
@@ -169,5 +171,6 @@ This stage is **complete** when:
 
 1. ✅ `tests/CharacterizationTests/` exists and builds without errors
 2. ✅ `dotnet test tests/CharacterizationTests/ --configuration Release` passes — **zero failures**
-3. ✅ `docs/modernization/stage-2/baseline.md` exists with all required sections
+3. ✅ `docs/modernization/stage-2/baseline.md` exists with all four required sections (`## Summary`, `## Covered Behavior`, `## Explicitly NOT Covered`, `## Test Execution`)
 4. ✅ No files under `src/` were modified
+5. ✅ No `.sln` files were modified
