@@ -35,6 +35,19 @@ See `.squad/decisions.md` for full backlog and dependency graph.
 - **Placeholder steps** are labeled `[PLACEHOLDER]` with comments naming the work item that fills them
 - **Each placeholder** documents: what the agent should do, output paths, and which prompt file to use
 
+### Work Item #3 — Stage 2 Agent Prompt (completed)
+- **File:** `.github/prompts/stage-2-characterization-tests.md`
+- **Input contract:** `docs/modernization/stage-1/inventory.md` — agent aborts if missing
+- **Test project path:** `tests/CharacterizationTests/CharacterizationTests.csproj`
+- **Namespace:** `Microsoft.eShopWeb.CharacterizationTests` (matches repo convention `Microsoft.eShopWeb.<ProjectName>`)
+- **Existing test projects:** FunctionalTests (xUnit), IntegrationTests (xUnit), UnitTests (xUnit), PublicApiIntegrationTests (MSTest — outlier)
+- **Centralized packages:** `Directory.Packages.props` controls all versions; test csproj must NOT specify versions
+- **Test fixture pattern:** `WebApplicationFactory<T>` with in-memory EF Core overrides — two existing fixtures (Web → `TestApplication`, PublicApi → `TestApiApplication`)
+- **Five test categories:** Api, Web, Service, Configuration, DataAccess — mapped to `[Trait("Category", "...")]`
+- **Baseline output:** `docs/modernization/stage-2/baseline.md` with covered, not-covered, and counts
+- **Blazor exclusion:** BlazorAdmin/BlazorShared cannot be tested with xUnit (requires browser automation)
+- **Exit criteria:** tests build and pass, baseline exists, no `src/` modifications
+
 ### Work Item #2 — Stage 1 Agent Prompt (completed)
 - **File:** `.github/prompts/stage-1-documentation.md`
 - **Prompt is self-contained** — assumes the receiving agent has zero prior context about the repo
