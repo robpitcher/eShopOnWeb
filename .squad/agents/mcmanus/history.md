@@ -22,3 +22,16 @@ See `.squad/decisions.md` for full backlog and dependency graph.
 
 <!-- Append new learnings below. Each entry is something lasting about the project. -->
 
+### Work Item #1 — Workflow Skeleton (completed)
+- **File:** `.github/workflows/modernize-pipeline.yml`
+- **No naming conflict** — existing workflows: `dotnetcore.yml`, `richnav.yml`, `squad-*.yml`, `sync-squad-labels.yml`
+- **Working branch convention:** `modernize/<run-id>` (using `github.run_id`)
+- **Artifact paths:** `docs/modernization/stage-{1,2,3}/`
+- **Inputs:** `target-branch` (default: main), `dotnet-version-override` (default: 9.0)
+- **Job chain:** `stage-1-docs` → `stage-2-tests` → `stage-3-assessment` → `summary-pr`
+- **Concurrency:** single run at a time via `concurrency: modernize-pipeline`
+- **summary-pr** runs with `if: always()` so partial results still produce a PR
+- **Existing CI uses** `actions/checkout@v2` and `dotnet-version: 7.0.x` — new workflow uses `@v4`
+- **Placeholder steps** are labeled `[PLACEHOLDER]` with comments naming the work item that fills them
+- **Each placeholder** documents: what the agent should do, output paths, and which prompt file to use
+

@@ -2,11 +2,44 @@
 
 ## Active Decisions
 
-### 1. PRD Decomposition — Agentic Modernization Pipeline (Stages 1–3)
+### 1. Workflow Skeleton Conventions
+
+**Author:** McManus (Backend Dev)  
+**Date:** 2025-07-17  
+**Status:** Implemented  
+**Work Item:** #1  
+
+Created `.github/workflows/modernize-pipeline.yml` as the structural shell for the agentic modernization pipeline.
+
+**Conventions established:**
+
+1. **Working branch:** `modernize/<github.run_id>` — unique per run, easily traceable.
+2. **Artifact paths:** `docs/modernization/stage-{1,2,3}/` — consistent with Keaton's decomposition.
+3. **Workflow inputs:** `target-branch` (default: main), `dotnet-version-override` (default: 9.0).
+4. **Concurrency:** single pipeline run at a time (`concurrency: modernize-pipeline, cancel-in-progress: false`).
+5. **Permissions:** `contents: write` + `pull-requests: write` at workflow level.
+6. **Summary job:** runs with `if: always()` so partial results produce a PR.
+7. **Placeholder naming:** steps prefixed with `[PLACEHOLDER]` and annotated with work item numbers.
+8. **Checkout:** `actions/checkout@v4` with `fetch-depth: 0` for full history.
+
+**Plug-in points for downstream work items:**
+
+| Work Item | What to fill in | Job | Step(s) |
+|-----------|----------------|-----|---------|
+| #2, #8 | Stage 1 agent prompt + wiring | `stage-1-docs` | Agent invocation, artifact commit |
+| #3, #9 | Stage 2 agent prompt + wiring | `stage-2-tests` | Agent invocation, test run, artifact commit |
+| #4, #10 | Stage 3 agent prompt + wiring | `stage-3-assessment` | Agent invocation, artifact commit |
+| #5 | Contract gate: S2 validates S1 | `stage-2-tests` | Contract gate step |
+| #6 | Contract gate: S3 validates S2 | `stage-3-assessment` | Contract gate step |
+| #7 | PR creation logic | `summary-pr` | PR creation step |
+
+---
+
+### 2. PRD Decomposition — Agentic Modernization Pipeline (Stages 1–3)
 
 **Author:** Keaton (Lead)  
 **Date:** 2025-07-17  
-**Status:** Proposed  
+**Status:** Merged  
 **Requested by:** Rob  
 **Input:** `docs/prd.md`  
 
