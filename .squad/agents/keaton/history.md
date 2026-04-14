@@ -10,6 +10,13 @@
 
 <!-- Append new learnings below. Each entry is something lasting about the project. -->
 
+### 2025-07-17 — Open Questions Resolution (Work Item #15)
+
+- **Decision record location:** `.squad/decisions/inbox/keaton-open-questions.md` — formally documents three PRD open questions as confirmed team decisions.
+- **Decisions:** Target .NET 9 (not 7, not 10), Ubuntu runner (not Windows), xUnit (not NUnit or MSTest).
+- **Rationale:** All three reflect defaults already baked into workflow skeleton (work item #1) and prompts (work items #2–#4). The record closes the loop by explaining *why* these choices were made and *what evidence* exists in the codebase.
+- **Governance:** No further discussion needed; decisions locked in and inform all downstream work items.
+
 ### 2025-07-17 — PRD Decomposition (Agentic Modernization Pipeline)
 
 - **PRD location:** `docs/prd.md` — multi-stage agentic pipeline for .NET modernization via GitHub Actions.

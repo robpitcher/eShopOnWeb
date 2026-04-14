@@ -124,6 +124,34 @@ Work item #5 (contract gate) **must** validate against these exact heading strin
 
 ---
 
+### 6. Contract Gate Test Strategy
+
+**Author:** Hockney (Tester)  
+**Date:** 2025-07-17  
+**Work Item:** #11  
+**Status:** Implemented  
+
+## Context
+
+The PRD success criterion requires: *"Deliberately breaking a stage 1 artifact causes stage 2's contract gate to fail with a clear error message naming the missing piece."* We need a repeatable way to verify this without running the full pipeline every time.
+
+## Decision
+
+1. **Offline testing via extracted gate logic** — The validation scripts (`scripts/test-contract-gates.sh` and `.ps1`) reproduce the exact gate logic from the workflow, using temporary fixture files. This lets us validate gate behavior in seconds without triggering a full pipeline run.
+
+2. **One test per failure mode** — Each required section gets its own test case (not just "remove any section"). This catches regressions where a specific heading string drifts between the prompt and the gate.
+
+3. **Dual script (bash + PowerShell)** — Bash for CI (Ubuntu runner), PowerShell for local dev (Windows). Both exercise identical logic.
+
+4. **grep behavior difference documented** — Stage 2 gate uses `grep -qF` (substring match), stage 3 uses `grep -q "^…"` (line-anchored). Scripts respect this difference. If someone changes the grep flags in the workflow, they need to update the test scripts too.
+
+## Implications
+
+- Any change to section headings in prompts must update: (a) the workflow gate, (b) the test scripts, (c) the test plan doc. Three-way lockstep.
+- The test scripts can be added to a CI pre-check or run as a smoke test before merging prompt changes.
+
+---
+
 ## Governance
 
 - All meaningful changes require team consensus
