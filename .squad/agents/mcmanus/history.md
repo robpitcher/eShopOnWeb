@@ -78,6 +78,18 @@ See `.squad/decisions.md` for full backlog and dependency graph.
 - **Success path:** prints per-check confirmations then a final `✅ Contract gate passed` line
 - **Same pattern as #5:** downstream-validates-upstream, shell `run:` step (not a separate action), per team decision #4
 
+### Work Item #8 — Stage 1 Integration Wiring (completed)
+- **File:** `.github/workflows/modernize-pipeline.yml` — `stage-1-docs` job
+- **Agent invocation pattern:** Copilot CLI in autopilot mode (`copilot --autopilot --yolo --max-autopilot-continues 30 -p "$PROMPT"`)
+- **CLI install:** `actions/setup-node@v4` (Node 22) + `npm install -g @github/copilot`
+- **Auth:** `COPILOT_GITHUB_TOKEN` env var, prefers `secrets.COPILOT_TOKEN` with fallback to `secrets.GITHUB_TOKEN`
+- **Prompt delivery:** reads `.github/prompts/stage-1-documentation.md` via `cat` into a shell variable, passed to `-p`
+- **Commit identity:** `github-actions[bot]` — standard bot user for Actions-authored commits
+- **Fail-loud on empty output:** commit step checks `git diff --cached --quiet` and exits 1 with `::error::` annotation if no artifacts produced
+- **Working branch:** created and pushed only in stage 1; stages 2/3 just check out the existing branch
+- **No official `uses:` action** exists for Copilot coding agent invocation (as of 2025) — CLI is the standard approach
+- **Commit message convention:** `Stage 1: Documentation inventory [run #<run_id>]`
+
 ### Work Item #7 — PR Summary Job (completed)
 - **File:** `.github/workflows/modernize-pipeline.yml` — `summary-pr` job
 - **Fixed `needs:` declaration** — changed from `needs: stage-3-assessment` to `needs: [stage-1-docs, stage-2-tests, stage-3-assessment]` so all three results are available in the `needs` context

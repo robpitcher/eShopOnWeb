@@ -69,38 +69,41 @@ jobs:
           mkdir -p "${{ env.ARTIFACT_ROOT }}/stage-2"
           mkdir -p "${{ env.ARTIFACT_ROOT }}/stage-3"
 
-      # ---------------------------------------------------------
-      # PLACEHOLDER: Agent invocation for Stage 1
-      # ---------------------------------------------------------
-      # Work item #2 (stage-1 prompt) and #8 (stage-1 wiring) will
-      # replace this step with the actual agent call.
-      #
-      # The agent should:
-      #   - Read the repo structure
-      #   - Produce docs/modernization/stage-1/inventory.md with:
-      #     * Projects and target frameworks
-      #     * NuGet dependencies
-      #     * External I/O (DB, HTTP, filesystem)
-      #     * Configuration surface
-      #     * Entry points
-      #     * Upgrade risks
-      #   - Analysis only — no code changes
-      #
-      # Prompt file: .github/prompts/stage-1-documentation.md
-      - name: "[PLACEHOLDER] Invoke Stage 1 agent"
-        run: |
-          echo "::notice::Stage 1 agent invocation placeholder — see work items #2 and #8"
-          echo "TODO: Invoke coding agent with .github/prompts/stage-1-documentation.md"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
 
-      # ---------------------------------------------------------
-      # PLACEHOLDER: Commit and push stage 1 artifacts
-      # ---------------------------------------------------------
-      # Work item #8 will finalize this step. The agent may commit
-      # directly, or this step commits on its behalf.
-      - name: "[PLACEHOLDER] Commit stage 1 artifacts"
+      - name: Install Copilot CLI
+        run: npm install -g @github/copilot
+
+      # Runs the Copilot CLI in autopilot mode with the stage 1 prompt.
+      # The agent reads the repo structure and produces
+      # docs/modernization/stage-1/inventory.md (analysis only, no code changes).
+      #
+      # Auth: GITHUB_TOKEN is used by default. If your org requires a PAT
+      # with Copilot scope, create a COPILOT_TOKEN repo secret and it will
+      # be preferred automatically.
+      - name: Invoke Stage 1 documentation agent
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
-          echo "::notice::Artifact commit placeholder — see work item #8"
-          echo "TODO: git add docs/modernization/stage-1/ && git commit && git push"
+          PROMPT=$(cat .github/prompts/stage-1-documentation.md)
+          copilot --autopilot --yolo --max-autopilot-continues 30 \
+            -p "$PROMPT"
+
+      - name: Commit and push stage 1 artifacts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/modernization/stage-1/
+          if git diff --cached --quiet; then
+            echo "::error::Stage 1 agent did not produce any artifacts in docs/modernization/stage-1/"
+            exit 1
+          fi
+          git commit -m "Stage 1: Documentation inventory [run #${{ github.run_id }}]"
+          git push
 
   # ============================================================
   # Stage 2 — Characterization Tests
