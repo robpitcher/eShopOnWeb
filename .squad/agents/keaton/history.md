@@ -10,6 +10,14 @@
 
 <!-- Append new learnings below. Each entry is something lasting about the project. -->
 
+### 2025-07-18 — Pipeline Documentation (Work Item #13)
+
+- **Artifact:** `AGENTS.md` created in repo root; `docs/modernization/README.md` created in docs/
+- **Scope:** Documented the three-stage agentic pipeline architecture, contract gate pattern, artifact handoffs, and debugging guidance
+- **Key insight:** Contract gates are the quality enforcement mechanism—section headings in prompts must stay in sync with gate validation scripts, or gates fail loudly. This is by design (defensive against prompt drift).
+- **Audience:** Developers reading the repo with no prior context should be able to understand the pipeline in 5 minutes (AGENTS.md) or dive deep (modernization/README.md) for architecture details.
+- **Rationale:** The pipeline is the heart of .NET modernization automation. Transparent, debuggable documentation reduces friction and prevents confusion when stages fail.
+
 ### 2025-07-17 — Open Questions Resolution (Work Item #15)
 
 - **Decision record location:** `.squad/decisions/inbox/keaton-open-questions.md` — formally documents three PRD open questions as confirmed team decisions.

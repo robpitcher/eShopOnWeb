@@ -29,3 +29,12 @@ See `.squad/decisions.md` for full backlog and dependency graph.
 - Deliverables: `docs/modernization/test-plans/contract-gate-validation.md`, `scripts/test-contract-gates.sh`, `scripts/test-contract-gates.ps1`.
 - The PowerShell script mirrors the bash logic but uses `[regex]::Escape()` and `(?m)` multiline flag for line-anchored matches.
 
+### 2025-07-17 — Work Item #12: End-to-End Pipeline Validation
+
+- Ran 53 checks across 12 categories against the full wired pipeline. Zero failures, four non-blocking warnings.
+- Contract gate headings match prompt-declared headings exactly: 6/6 for gate #5 (stage 1→2), 4/4 for gate #6 (stage 2→3). Cross-reference is clean.
+- `TARGET_DOTNET` env var is defined at workflow level but never consumed — the `dotnet-version-override` input is dead code. Not blocking since .NET 9 is hardcoded in the stage 3 prompt.
+- Copilot CLI package name (`@github/copilot`) cannot be verified offline — flagged as medium-risk for the first live run.
+- PR body heredoc uses a fragile `sed` strip for indentation — works but breaks if YAML is reformatted. Low-priority cleanup.
+- Deliverables: `docs/modernization/test-plans/e2e-validation-report.md`, `.squad/decisions/inbox/hockney-e2e-findings.md`.
+

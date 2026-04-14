@@ -152,6 +152,130 @@ The PRD success criterion requires: *"Deliberately breaking a stage 1 artifact c
 
 ---
 
+### 7. PRD Open Questions Resolution
+
+**Author:** Keaton (Lead)  
+**Date:** 2025-07-17  
+**Work Item:** #15  
+**Status:** Closed  
+**Requested by:** Rob
+
+#### Context
+
+The Agentic Modernization Pipeline PRD (`docs/prd.md`) identified three open questions requiring team consensus. During implementation planning and PRD decomposition, the team made deliberate default choices aligned with the existing codebase. This decision record formally closes the loop on those questions.
+
+#### Question 1: Target .NET Version
+
+**PRD Question:** Which .NET version should the assessment target?
+
+**Decision:** **.NET 9**
+
+**Rationale:**
+- eShopOnWeb currently runs on .NET 7 (end-of-support November 2024)
+- .NET 9 is the latest LTS release and represents a pragmatic modernization target
+- Aligns with Microsoft's mainstream upgrade guidance for production ASP.NET Core workloads
+- Assessment scope must target a supported, modern framework version
+
+**Evidence in Codebase:**
+- Global workflow input `dotnet-version-override` defaults to `9.0` in `.github/workflows/modernize-pipeline.yml`
+- PRD decomposition (decision #2) explicitly names "Target .NET 9 for assessment"
+
+#### Question 2: Runner OS
+
+**PRD Question:** Should stages run on Windows or Linux runners?
+
+**Decision:** **Ubuntu (Linux)**
+
+**Rationale:**
+- eShopOnWeb is a modern ASP.NET Core application (.NET 7+), not .NET Framework
+- Modern ASP.NET Core runs identically on Linux and Windows; testing on Linux reduces cost and complexity
+- GitHub Actions Ubuntu runners are faster and more cost-efficient for build/test workflows
+- Industry standard for cross-platform .NET Core validation
+- No Windows-specific technologies in the stack (no desktop projects, no WinForms, no legacy dependencies)
+
+**Evidence in Codebase:**
+- Existing `.github/workflows/dotnetcore.yml` uses `ubuntu-latest` for .NET tests
+- Docker Compose setup (`docker-compose.yml`, `docker-compose.override.yml`) runs on Linux containers
+- No project files target `net7.0-windows` or other Windows-specific frameworks
+
+#### Question 3: Test Framework
+
+**PRD Question:** Should characterization tests use xUnit, NUnit, or MSTest?
+
+**Decision:** **xUnit**
+
+**Rationale:**
+- Three of four existing test projects already use xUnit (UnitTests, IntegrationTests, FunctionalTests)
+- eShopOnWeb has established xUnit conventions: namespace patterns, fixture setup, trait markers
+- Consistency with existing codebase reduces cognitive load and leverages existing test infrastructure
+- Stage 2 prompt explicitly requires xUnit as the framework for characterization tests
+
+**Evidence in Codebase:**
+- `tests/UnitTests/UnitTests.csproj` — xUnit
+- `tests/IntegrationTests/IntegrationTests.csproj` — xUnit
+- `tests/FunctionalTests/FunctionalTests.csproj` — xUnit
+- Only `tests/PublicApiIntegrationTests/PublicApiIntegrationTests.csproj` uses NUnit; will not be affected by characterization tests
+- Stage 2 decision (decision #4) names xUnit as the framework, not an option
+
+#### Impact and Sign-off
+
+These decisions are **locked in** and inform:
+1. **Stage 1:** Target inventory documentation for .NET 9 migration analysis
+2. **Stage 2:** Test environment setup (xUnit project, in-memory EF Core, Ubuntu runner)
+3. **Stage 3:** Assessment assumptions and recommendations
+
+All downstream work items (#2–#12, prompts, wiring, contract gates) assume these choices.
+
+**No further discussion needed** — these represent consolidated team consensus captured during implementation planning.
+
+---
+
+### 8. E2E Pipeline Validation Findings
+
+**Author:** Hockney (Tester)  
+**Date:** 2025-07-17  
+**Work Item:** #12  
+**Severity:** Non-blocking (4 warnings, 0 failures)  
+**Status:** Complete
+
+#### Context
+
+E2E validation of `.github/workflows/modernize-pipeline.yml` and all contract gates. Verified structural correctness, job chaining, fail-loud guarantees, and PR creation logic.
+
+#### Findings
+
+##### 1. `TARGET_DOTNET` env var is dead code (Low)
+
+The `dotnet-version-override` workflow input is captured into `env.TARGET_DOTNET` but never consumed by any step. The stage 3 prompt hardcodes ".NET 9." The input is effectively cosmetic.
+
+**Recommendation:** Either inject the value into the stage 3 agent invocation (e.g., prompt substitution) or remove the input and env var to avoid confusion. Not blocking — .NET 9 is the only target for now.
+
+##### 2. Copilot CLI npm package name unverified (Medium)
+
+All three stages run `npm install -g @github/copilot`. If this is not the correct published package name, all stages fail at install. This cannot be validated offline.
+
+**Recommendation:** Before the first live run, verify with `npm view @github/copilot`. If incorrect, update all three agent invocation blocks.
+
+##### 3. PR body heredoc fragile to re-indentation (Low)
+
+The `sed -i 's/^          //' pr_body.md` command assumes exactly 10 leading spaces. If the YAML is reformatted, the PR body breaks silently (extra whitespace, not a crash).
+
+**Recommendation:** No action required now. Consider a non-indented heredoc in a future cleanup pass.
+
+##### 4. `COPILOT_TOKEN` secret needs documentation (Low)
+
+The `COPILOT_TOKEN || GITHUB_TOKEN` fallback is fine, but operators need to know whether their org requires a dedicated PAT with Copilot scope. Not documented outside the workflow comments.
+
+**Recommendation:** Add a note to the repo README or pipeline docs about when/how to configure `COPILOT_TOKEN`.
+
+#### Verdict
+
+**No blocking issues.** Pipeline is structurally correct. All contract gates match their prompt contracts exactly (6/6 stage 1 headings, 4/4 stage 2 headings). Job chaining, fail-loud guards, and PR creation logic are all sound.
+
+Ready for a first live run pending Copilot CLI package name verification.
+
+---
+
 ## Governance
 
 - All meaningful changes require team consensus
