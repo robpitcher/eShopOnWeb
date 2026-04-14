@@ -81,17 +81,30 @@ jobs:
       # The agent reads the repo structure and produces
       # docs/modernization/stage-1/inventory.md (analysis only, no code changes).
       #
-      # Auth: GITHUB_TOKEN is used by default. If your org requires a PAT
-      # with Copilot scope, create a COPILOT_TOKEN repo secret and it will
-      # be preferred automatically.
+      # Auth: requires a Fine-Grained PAT with "Copilot Requests: Read"
+      # permission, stored as a COPILOT_TOKEN repo secret. The default
+      # GITHUB_TOKEN does NOT include Copilot API scope.
       - name: Invoke Stage 1 documentation agent
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           PROMPT=$(cat .github/prompts/stage-1-documentation.md)
+          echo "Starting Copilot CLI (Stage 1 — documentation inventory)..."
+          set +e
           copilot --autopilot --yolo --max-autopilot-continues 30 \
-            -p "$PROMPT"
+            -p "$PROMPT" 2>&1
+          COPILOT_EXIT=$?
+          set -e
+          if [ $COPILOT_EXIT -ne 0 ]; then
+            echo ""
+            echo "::error::Copilot CLI failed with exit code $COPILOT_EXIT."
+            echo "::error::This is most likely an authentication issue — the default GITHUB_TOKEN does not include Copilot API scope."
+            echo "::error::FIX: Create a Fine-Grained PAT with 'Copilot Requests: Read' permission"
+            echo "::error::     and add it as a COPILOT_TOKEN repo secret (Settings → Secrets and variables → Actions)."
+            echo "::error::See: https://github.com/settings/personal-access-tokens/new"
+            exit 1
+          fi
 
       - name: Commit and push stage 1 artifacts
         run: |
@@ -180,15 +193,27 @@ jobs:
       # tests in tests/CharacterizationTests/ plus a baseline document in
       # docs/modernization/stage-2/baseline.md.
       #
-      # Auth: same pattern as stage 1 — prefer COPILOT_TOKEN if set.
+      # Auth: same pattern as stage 1 — requires COPILOT_TOKEN secret.
       - name: Invoke Stage 2 characterization-test agent
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           PROMPT=$(cat .github/prompts/stage-2-characterization-tests.md)
+          echo "Starting Copilot CLI (Stage 2 — characterization tests)..."
+          set +e
           copilot --autopilot --yolo --max-autopilot-continues 30 \
-            -p "$PROMPT"
+            -p "$PROMPT" 2>&1
+          COPILOT_EXIT=$?
+          set -e
+          if [ $COPILOT_EXIT -ne 0 ]; then
+            echo ""
+            echo "::error::Copilot CLI failed with exit code $COPILOT_EXIT."
+            echo "::error::This is most likely an authentication issue — the default GITHUB_TOKEN does not include Copilot API scope."
+            echo "::error::FIX: Create a Fine-Grained PAT with 'Copilot Requests: Read' permission"
+            echo "::error::     and add it as a COPILOT_TOKEN repo secret (Settings → Secrets and variables → Actions)."
+            exit 1
+          fi
 
       # .NET SDK is needed to build and run the generated tests.
       - name: Setup .NET SDK
@@ -303,16 +328,28 @@ jobs:
       # upgrade feasibility, producing docs/modernization/stage-3/assessment.md.
       # Assessment only — no code changes, no builds, no test execution.
       #
-      # Auth: same pattern as stages 1 and 2 — prefer COPILOT_TOKEN if set.
+      # Auth: same pattern as stages 1 and 2 — requires COPILOT_TOKEN secret.
       - name: Invoke Stage 3 upgrade-assessment agent
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           PROMPT=$(cat .github/prompts/stage-3-upgrade-assessment.md)
+          echo "Starting Copilot CLI (Stage 3 — upgrade assessment)..."
+          set +e
           copilot --autopilot --yolo --max-autopilot-continues 30 \
             --agent modernize-dotnet \
-            -p "$PROMPT"
+            -p "$PROMPT" 2>&1
+          COPILOT_EXIT=$?
+          set -e
+          if [ $COPILOT_EXIT -ne 0 ]; then
+            echo ""
+            echo "::error::Copilot CLI failed with exit code $COPILOT_EXIT."
+            echo "::error::This is most likely an authentication issue — the default GITHUB_TOKEN does not include Copilot API scope."
+            echo "::error::FIX: Create a Fine-Grained PAT with 'Copilot Requests: Read' permission"
+            echo "::error::     and add it as a COPILOT_TOKEN repo secret (Settings → Secrets and variables → Actions)."
+            exit 1
+          fi
 
       - name: Commit and push stage 3 artifacts
         run: |
