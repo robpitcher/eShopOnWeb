@@ -2,7 +2,28 @@
 
 ## Active Decisions
 
-No decisions recorded yet.
+### 1. PRD Decomposition — Agentic Modernization Pipeline (Stages 1–3)
+
+**Author:** Keaton (Lead)  
+**Date:** 2025-07-17  
+**Status:** Proposed  
+**Requested by:** Rob  
+**Input:** `docs/prd.md`  
+
+**Context:** The PRD describes a multi-stage agentic pipeline for .NET modernization running inside GitHub Actions. This iteration covers stages 1–3 only: Documentation, Characterization Tests, and Upgrade Assessment. The pipeline must be sequential, artifact-driven, and fail-loud.
+
+The eShopOnWeb repo is ASP.NET Core (currently targeting .NET 7) with clean architecture (6 src projects, 4 test projects), existing GitHub workflows, and existing test suites using xUnit.
+
+**Architecture Decisions:**
+1. Single workflow file: `.github/workflows/modernize-pipeline.yml` with sequential jobs chained via `needs:`
+2. Artifact directory convention: Each stage writes to `docs/modernization/stage-N/`
+3. Prompt files live in `.github/prompts/` — version-controlled and separate from workflow YAML
+4. Contract gates are shell scripts in the workflow (not separate actions)
+5. Target .NET 9 for assessment
+6. Use xUnit for stage 2 characterization tests
+7. Use Ubuntu runner for all stages
+
+**Work Backlog:** 15 items assigned to McManus (#1–10), Hockney (#11–12), Keaton (#13–15). See detailed breakdown in orchestration log.
 
 ## Governance
 
