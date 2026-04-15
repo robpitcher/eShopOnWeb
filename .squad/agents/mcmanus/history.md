@@ -137,3 +137,20 @@ See `.squad/decisions.md` for full backlog and dependency graph.
 - **Zero placeholders remain** in the entire workflow file — pipeline skeleton fully wired end-to-end
 - **This was McManus's last pipeline wiring item** — all 10 work items (#1–10) complete
 
+### PR #8 — Copilot Auth Error Handling (PR Review Response) (completed)
+- **Branch:** `fix/copilot-auth-error-handling`
+- **File:** `.github/workflows/modernize-pipeline.yml`
+- **Addressed 6 review comments** from `copilot-pull-request-reviewer`:
+  1. **Comments 1–3:** Removed `GITHUB_TOKEN` fallback from all 3 stages — changed `COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_TOKEN || secrets.GITHUB_TOKEN }}` to just `secrets.COPILOT_TOKEN` (no fallback)
+  2. **Comments 1–3:** Added preflight checks at start of each stage's run block — tests if `$COPILOT_GITHUB_TOKEN` is empty, prints actionable error with PAT URL, exits 1
+  3. **Comment 4:** Added missing PAT URL to Stage 2 error messages (both preflight and post-CLI handler)
+  4. **Comment 5:** Added missing PAT URL to Stage 3 error messages (both preflight and post-CLI handler)
+  5. **Comment 6:** Quoted `$COPILOT_EXIT` in all 3 stages — changed `if [ $COPILOT_EXIT -ne 0 ]` to `if [ "$COPILOT_EXIT" -ne 0 ]` for robustness
+- **Consistency achieved:** All 3 stages now have identical structure for token validation:
+  1. `env:` block with `GITHUB_TOKEN` and `COPILOT_GITHUB_TOKEN` (no fallback)
+  2. Preflight check for empty `$COPILOT_GITHUB_TOKEN` with full error messaging
+  3. Copilot CLI invocation with `set +e` / `set -e`
+  4. Post-CLI error handler with quoted `$COPILOT_EXIT` and all 5 error lines (including PAT URL)
+- **Fail-loud from the start:** Preflight check catches missing secret before CLI invocation, providing immediate feedback with actionable error message
+- **Rationale:** The fallback pattern was misleading — `GITHUB_TOKEN` lacks Copilot API scope, so fallback would always fail but with less clear error. New pattern fails fast with explicit instructions.
+
