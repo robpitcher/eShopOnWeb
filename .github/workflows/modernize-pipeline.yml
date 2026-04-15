@@ -82,20 +82,20 @@ jobs:
       # docs/modernization/stage-1/inventory.md (analysis only, no code changes).
       #
       # Auth: requires a Fine-Grained PAT with "Copilot Requests: Read"
-      # permission, stored as a COPILOT_TOKEN repo secret. The default
+      # permission, stored as a COPILOT_GITHUB_TOKEN repo secret. The default
       # GITHUB_TOKEN does NOT include Copilot API scope.
       - name: Invoke Stage 1 documentation agent
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         run: |
-          # Preflight check: validate COPILOT_TOKEN is configured
+          # Preflight check: validate COPILOT_GITHUB_TOKEN is configured
           if [ -z "$COPILOT_GITHUB_TOKEN" ]; then
             echo ""
-            echo "::error::COPILOT_TOKEN secret is not configured."
+            echo "::error::COPILOT_GITHUB_TOKEN secret is not configured."
             echo "::error::The default GITHUB_TOKEN does not include Copilot API scope."
             echo "::error::FIX: Create a Fine-Grained PAT with 'Copilot Requests: Read' permission"
-            echo "::error::     and add it as a COPILOT_TOKEN repo secret (Settings → Secrets and variables → Actions)."
+            echo "::error::     and add it as a COPILOT_GITHUB_TOKEN repo secret (Settings → Secrets and variables → Actions)."
             echo "::error::See: https://github.com/settings/personal-access-tokens/new"
             exit 1
           fi
@@ -112,7 +112,7 @@ jobs:
             echo "::error::Copilot CLI failed with exit code $COPILOT_EXIT."
             echo "::error::This is most likely an authentication issue — the default GITHUB_TOKEN does not include Copilot API scope."
             echo "::error::FIX: Create a Fine-Grained PAT with 'Copilot Requests: Read' permission"
-            echo "::error::     and add it as a COPILOT_TOKEN repo secret (Settings → Secrets and variables → Actions)."
+            echo "::error::     and add it as a COPILOT_GITHUB_TOKEN repo secret (Settings → Secrets and variables → Actions)."
             echo "::error::See: https://github.com/settings/personal-access-tokens/new"
             exit 1
           fi
@@ -204,19 +204,19 @@ jobs:
       # tests in tests/CharacterizationTests/ plus a baseline document in
       # docs/modernization/stage-2/baseline.md.
       #
-      # Auth: same pattern as stage 1 — requires COPILOT_TOKEN secret.
+      # Auth: same pattern as stage 1 — requires COPILOT_GITHUB_TOKEN secret.
       - name: Invoke Stage 2 characterization-test agent
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         run: |
-          # Preflight check: validate COPILOT_TOKEN is configured
+          # Preflight check: validate COPILOT_GITHUB_TOKEN is configured
           if [ -z "$COPILOT_GITHUB_TOKEN" ]; then
             echo ""
-            echo "::error::COPILOT_TOKEN secret is not configured."
+            echo "::error::COPILOT_GITHUB_TOKEN secret is not configured."
             echo "::error::The default GITHUB_TOKEN does not include Copilot API scope."
             echo "::error::FIX: Create a Fine-Grained PAT with 'Copilot Requests: Read' permission"
-            echo "::error::     and add it as a COPILOT_TOKEN repo secret (Settings → Secrets and variables → Actions)."
+            echo "::error::     and add it as a COPILOT_GITHUB_TOKEN repo secret (Settings → Secrets and variables → Actions)."
             echo "::error::See: https://github.com/settings/personal-access-tokens/new"
             exit 1
           fi
@@ -233,7 +233,7 @@ jobs:
             echo "::error::Copilot CLI failed with exit code $COPILOT_EXIT."
             echo "::error::This is most likely an authentication issue — the default GITHUB_TOKEN does not include Copilot API scope."
             echo "::error::FIX: Create a Fine-Grained PAT with 'Copilot Requests: Read' permission"
-            echo "::error::     and add it as a COPILOT_TOKEN repo secret (Settings → Secrets and variables → Actions)."
+            echo "::error::     and add it as a COPILOT_GITHUB_TOKEN repo secret (Settings → Secrets and variables → Actions)."
             echo "::error::See: https://github.com/settings/personal-access-tokens/new"
             exit 1
           fi
@@ -351,19 +351,19 @@ jobs:
       # upgrade feasibility, producing docs/modernization/stage-3/assessment.md.
       # Assessment only — no code changes, no builds, no test execution.
       #
-      # Auth: same pattern as stages 1 and 2 — requires COPILOT_TOKEN secret.
+      # Auth: same pattern as stages 1 and 2 — requires COPILOT_GITHUB_TOKEN secret.
       - name: Invoke Stage 3 upgrade-assessment agent
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         run: |
-          # Preflight check: validate COPILOT_TOKEN is configured
+          # Preflight check: validate COPILOT_GITHUB_TOKEN is configured
           if [ -z "$COPILOT_GITHUB_TOKEN" ]; then
             echo ""
-            echo "::error::COPILOT_TOKEN secret is not configured."
+            echo "::error::COPILOT_GITHUB_TOKEN secret is not configured."
             echo "::error::The default GITHUB_TOKEN does not include Copilot API scope."
             echo "::error::FIX: Create a Fine-Grained PAT with 'Copilot Requests: Read' permission"
-            echo "::error::     and add it as a COPILOT_TOKEN repo secret (Settings → Secrets and variables → Actions)."
+            echo "::error::     and add it as a COPILOT_GITHUB_TOKEN repo secret (Settings → Secrets and variables → Actions)."
             echo "::error::See: https://github.com/settings/personal-access-tokens/new"
             exit 1
           fi
@@ -381,7 +381,7 @@ jobs:
             echo "::error::Copilot CLI failed with exit code $COPILOT_EXIT."
             echo "::error::This is most likely an authentication issue — the default GITHUB_TOKEN does not include Copilot API scope."
             echo "::error::FIX: Create a Fine-Grained PAT with 'Copilot Requests: Read' permission"
-            echo "::error::     and add it as a COPILOT_TOKEN repo secret (Settings → Secrets and variables → Actions)."
+            echo "::error::     and add it as a COPILOT_GITHUB_TOKEN repo secret (Settings → Secrets and variables → Actions)."
             echo "::error::See: https://github.com/settings/personal-access-tokens/new"
             exit 1
           fi
