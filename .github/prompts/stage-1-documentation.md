@@ -99,6 +99,7 @@ Rate each risk as **Low**, **Medium**, or **High** with a brief justification.
 ## Rules
 
 1. **Analysis only.** Do not modify, create, or delete any file except `docs/modernization/stage-1/inventory.md`.
+1. **No git commands.** Do NOT run `git add`, `git commit`, `git push`, or any other git commands. The workflow handles all version control operations after your agent session ends.
 2. **Read files only.** Do NOT run `dotnet build`, `dotnet test`, `dotnet restore`, `dotnet run`, or any build/compilation/execution commands. Gather all information by reading source files, project files, and configuration files directly.
 3. **Be thorough.** Downstream agents depend on this inventory. Missing information causes pipeline failures or hallucinated assumptions.
 4. **Be precise.** Use exact file paths, exact package names, exact version numbers. Do not summarize when specifics are available.
