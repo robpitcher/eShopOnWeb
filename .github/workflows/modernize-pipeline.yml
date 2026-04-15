@@ -123,10 +123,15 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/modernization/stage-1/
           if git diff --cached --quiet; then
-            echo "::error::Stage 1 agent did not produce any artifacts in docs/modernization/stage-1/"
-            exit 1
+            # Nothing to stage — agent may have already committed the file
+            if [ ! -f "docs/modernization/stage-1/inventory.md" ]; then
+              echo "::error::Stage 1 agent did not produce any artifacts in docs/modernization/stage-1/"
+              exit 1
+            fi
+            echo "::notice::Stage 1 artifacts already committed by agent — pushing"
+          else
+            git commit -m "Stage 1: Documentation inventory [run #${{ github.run_id }}]"
           fi
-          git commit -m "Stage 1: Documentation inventory [run #${{ github.run_id }}]"
           git push
 
   # ============================================================
@@ -256,10 +261,15 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add tests/CharacterizationTests/ docs/modernization/stage-2/
           if git diff --cached --quiet; then
-            echo "::error::Stage 2 agent did not produce any artifacts in tests/CharacterizationTests/ or docs/modernization/stage-2/"
-            exit 1
+            # Nothing to stage — agent may have already committed the files
+            if [ ! -f "docs/modernization/stage-2/baseline.md" ] && [ ! -d "tests/CharacterizationTests" ]; then
+              echo "::error::Stage 2 agent did not produce any artifacts in tests/CharacterizationTests/ or docs/modernization/stage-2/"
+              exit 1
+            fi
+            echo "::notice::Stage 2 artifacts already committed by agent — pushing"
+          else
+            git commit -m "Stage 2: Characterization tests [run #${{ github.run_id }}]"
           fi
-          git commit -m "Stage 2: Characterization tests [run #${{ github.run_id }}]"
           git push
 
   # ============================================================
@@ -392,10 +402,15 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/modernization/stage-3/
           if git diff --cached --quiet; then
-            echo "::error::Stage 3 agent did not produce any artifacts in docs/modernization/stage-3/"
-            exit 1
+            # Nothing to stage — agent may have already committed the file
+            if [ ! -f "docs/modernization/stage-3/assessment.md" ]; then
+              echo "::error::Stage 3 agent did not produce any artifacts in docs/modernization/stage-3/"
+              exit 1
+            fi
+            echo "::notice::Stage 3 artifacts already committed by agent — pushing"
+          else
+            git commit -m "Stage 3: Upgrade assessment [run #${{ github.run_id }}]"
           fi
-          git commit -m "Stage 3: Upgrade assessment [run #${{ github.run_id }}]"
           git push
 
   # ============================================================

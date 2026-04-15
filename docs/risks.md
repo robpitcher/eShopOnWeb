@@ -1,0 +1,2 @@
+This document serves as a running list of risks associated with this workflow implementation.
+- repo setting for PR creation: Settings → Actions → General → Workflow permissions → ✅ "Allow GitHub Actions to create and approve pull requests"

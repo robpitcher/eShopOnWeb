@@ -139,6 +139,7 @@ The document must contain these sections:
 ## Constraints
 
 1. **No refactoring.** Do not modify any file under `src/`. Do not modify existing test projects.
+1. **No git commands.** Do NOT run `git add`, `git commit`, `git push`, or any other git commands. The workflow handles all version control operations after your agent session ends.
 2. **No solution file changes.** Do NOT modify any `.sln` file. The test project runs standalone via `dotnet test tests/CharacterizationTests/`.
 3. **No new dependencies** beyond what's already in `Directory.Packages.props`.
    If you need a package not already listed, document it in the baseline and skip those tests.

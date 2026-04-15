@@ -109,6 +109,7 @@ The output file must exist and contain all required sections before this stage i
 ## Constraints
 
 - **Assessment only.** Do not create migration plans, do not generate upgrade scripts, do not modify any project files or source code.
+- **No git commands.** Do NOT run `git add`, `git commit`, `git push`, or any other git commands. The workflow handles all version control operations after your agent session ends.
 - **No execution.** Do NOT run `dotnet build`, `dotnet test`, `dotnet restore`, `dotnet run`, or any compilation/execution commands. All analysis is based on reading files.
 - **No package installation.** Do NOT install any npm or NuGet packages.
 - **Single output file.** The only file you create is `docs/modernization/stage-3/assessment.md`. Do NOT write to any other path. Do NOT modify any existing file in the repository.
