@@ -153,4 +153,12 @@ See `.squad/decisions.md` for full backlog and dependency graph.
   4. Post-CLI error handler with quoted `$COPILOT_EXIT` and all 5 error lines (including PAT URL)
 - **Fail-loud from the start:** Preflight check catches missing secret before CLI invocation, providing immediate feedback with actionable error message
 - **Rationale:** The fallback pattern was misleading — `GITHUB_TOKEN` lacks Copilot API scope, so fallback would always fail but with less clear error. New pattern fails fast with explicit instructions.
+- **Follow-up rename:** Coordinator applied user-requested rename of `COPILOT_TOKEN` references to `COPILOT_GITHUB_TOKEN` environment variable for semantic clarity (secret name remains `COPILOT_TOKEN` in Actions config). Documented in orchestration log.
+
+### PR #8 — Coordinator Follow-up: Secret Rename to COPILOT_GITHUB_TOKEN (2026-04-15)
+- **User request:** Rename secret reference from `COPILOT_TOKEN` to `COPILOT_GITHUB_TOKEN` for consistency
+- **Action:** Applied rename of environment variable across all 3 stages in workflow
+- **Scope:** Env var only—secret name in Actions settings remains `COPILOT_TOKEN`
+- **Impact:** Clarifies that the PAT is GitHub-scoped for Copilot API (vs standard `GITHUB_TOKEN`)
+- **Documentation needed:** Future PR should update README to clarify `COPILOT_TOKEN` secret config vs `COPILOT_GITHUB_TOKEN` env var naming
 
