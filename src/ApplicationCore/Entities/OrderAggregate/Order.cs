@@ -21,6 +21,7 @@ public class Order : BaseEntity, IAggregateRoot
 
     public string BuyerId { get; private set; }
     public DateTimeOffset OrderDate { get; private set; } = DateTimeOffset.Now;
+    public OrderStatus Status { get; private set; } = OrderStatus.Submitted;
     public Address ShipToAddress { get; private set; }
 
     // DDD Patterns comment

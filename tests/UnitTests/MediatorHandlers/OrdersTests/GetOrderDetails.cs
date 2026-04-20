@@ -37,4 +37,15 @@ public class GetOrderDetails
 
         Assert.NotNull(result);
     }
+
+    [Fact]
+    public async Task ReturnsSubmittedStatusForOrder()
+    {
+        var request = new eShopWeb.Web.Features.OrderDetails.GetOrderDetails("SomeUserName", 0);
+        var handler = new GetOrderDetailsHandler(_mockOrderRepository.Object);
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(OrderStatus.Submitted.ToString(), result?.Status);
+    }
 }
