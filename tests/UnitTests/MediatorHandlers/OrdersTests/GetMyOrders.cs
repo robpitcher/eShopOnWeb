@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Ardalis.Specification;
@@ -34,5 +35,16 @@ public class GetMyOrders
         var result = await handler.Handle(request, CancellationToken.None);
 
         Assert.NotNull(result);
+    }
+
+    [Fact]
+    public async Task ReturnsSubmittedStatusForOrder()
+    {
+        var request = new eShopWeb.Web.Features.MyOrders.GetMyOrders("SomeUserName");
+        var handler = new GetMyOrdersHandler(_mockOrderRepository.Object);
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(OrderStatus.Submitted.ToString(), result.First().Status);
     }
 }
