@@ -398,6 +398,7 @@ If one stage fails, later stages are skipped (`needs:` dependency), but the PR i
 4. **Prompts and gates must stay in sync:** If you rename a section in a prompt, update the corresponding gate
 5. **Assessment, not execution:** Pipeline produces data for decision-making, not automation
 6. **Fail loud with names:** Errors identify exactly what's missing, making debugging straightforward
+7. **Secure and auditable:** See `SECURITY-GOVERNANCE.md` for full security and governance model
 
 ---
 
@@ -408,3 +409,4 @@ If one stage fails, later stages are skipped (`needs:` dependency), but the PR i
 - **Decision log:** `.squad/decisions.md`
 - **PRD:** `docs/prd.md`
 - **AGENTS.md:** Root-level overview of agentic workflows in this project
+- **Security and Governance:** `docs/modernization/SECURITY-GOVERNANCE.md` (for InfoSec review)

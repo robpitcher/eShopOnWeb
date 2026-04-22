@@ -152,9 +152,22 @@ For developers modifying the workflow or prompts:
 2. Remember: the agent must fix the test, not the app code
 3. Check that the test fixture pattern matches existing tests (e.g., `WebApplicationFactory<T>` with in-memory database)
 
+## Security and Governance
+
+For InfoSec review and platform governance considerations:
+
+- **Security model:** See `docs/modernization/SECURITY-GOVERNANCE.md` for detailed security and governance documentation, including:
+  - Threat model and mitigations
+  - Authentication and authorization
+  - Data flow and artifact handling
+  - Auditability and traceability
+  - Contract gate security properties
+  - Operational security recommendations
+
 ## Further Reading
 
 - **Pipeline specification:** See `docs/prd.md`
 - **Architecture decisions:** See `.squad/decisions.md`
 - **Prompt details:** See `.github/prompts/stage-*.md`
 - **Modern pipeline docs:** See `docs/modernization/README.md`
+- **Security and governance:** See `docs/modernization/SECURITY-GOVERNANCE.md`
